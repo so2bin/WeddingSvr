@@ -1,0 +1,5 @@
+##########################################
+#  environment: production
+#
+
+DEBUG = False
