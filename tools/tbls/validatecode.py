@@ -25,6 +25,9 @@ class ValidateCodes(models.Model):
     sendtime = models.DateTimeField(verbose_name='发送时间', default=timezone.now)
     is_used = models.BooleanField(verbose_name='是否已用', default=False)
 
+    def __str__(self):
+        return "%s,%s" % (self.phone, self.code)
+
 
 
 

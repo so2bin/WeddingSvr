@@ -64,6 +64,7 @@ REST_FRAMEWORK = {
 }
 
 ROOT_URLCONF = 'proj.urls'
+LOGOUT_URL = '/userinfo/validate/login/'
 
 TEMPLATES = [
     {

@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.models import User
+from django.contrib.auth import logout, authenticate, login
 
 from tools import exceptions as wter
 from tools.utils import validators, validatecode
@@ -21,6 +22,8 @@ class ValidateCodeViewSet(APIView):
             return Response({'status': 1, 'msg': '手机号不能为空'})
         if not validators.test_phone(phone):
             return Response({'status': 1, 'msg': '无效手机号'})
+        if User.objects.filter(username=phone):
+            return Response({'status': 1, 'msg': '手机号已经注册'})
         can_send, left_sec = validatecode.can_send_code(phone)
         if not can_send:
             return Response({'status': 1, 'msg': '间隔不能小于60秒，剩余%s' % left_sec})
@@ -47,3 +50,34 @@ class RegisterValidateViewSet(APIView):
             return Response({'status': 1, 'msg': msg})
         user = User.objects.create_user(phone, password=password)
         return Response({'status': 0, 'data': {}})
+
+
+class LoginViewSet(APIView):
+    """
+    login in
+    """
+    def post(self, request):
+        data = request.data
+        phone = data.get('phone')
+        password = data.get('password')
+        if not phone or not password:
+            return Response({'status': 1, 'msg': '帐号/密码不能为空'})
+        user = authenticate(username=phone, password=password)
+        if not user:
+            return Response({'status': 1, 'msg': '登陆验证失败'})
+        else:
+            if user.is_active:
+                login(request, user)
+                return Response({'status': 0})
+            else:
+                return Response({'status': 1, 'msg': '用户已失效'})
+
+
+class LogoutViewSet(APIView):
+    """
+    login out
+    """
+    def get(self, request):
+        logout(request)
+        return Response({'status': 0})
+
