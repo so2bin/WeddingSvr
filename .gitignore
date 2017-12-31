@@ -1,3 +1,8 @@
 __pycache__/
 /proj/__pycache__
 /proj/environ/__pycache__
+/proj/environ/default.py
+/proj/environ/production.py
+/.idea/*.iml
+/.idea/*.xml
+/.idea
