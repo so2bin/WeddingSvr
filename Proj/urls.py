@@ -17,9 +17,11 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include, url
 
+from proj.views import SvrTestAPI
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/test/', SvrTestAPI.as_view()),
     # url(r'^api-auth/', include('rest_framework.urls')),
     url(r'userinfo/', include('userinfo.urls')),
     url(r'suite/', include('suite.urls')),

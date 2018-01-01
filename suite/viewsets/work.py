@@ -23,7 +23,7 @@ class CreateWorkViewSet(APIView):
         title = data.get('title')
         main_img = data.get('main_img')
         head_img = data.get('head_img')
-        suite_type = data.get('sute_type')
+        suite_type = data.get('suite_type')
         if not all([title, main_img, head_img, suite_type]):
             return JsonResponse(Status.WRONG, msg='参数不全')
 
@@ -44,4 +44,5 @@ class WorkListViewSet(APIView):
     相册列表
     """
     def get(self, request):
-        return Suite.objects.get_list(user=request.user)
+        lst = Suite.objects.get_list(user=request.user)
+        return JsonResponse(Status.OK, data=lst)

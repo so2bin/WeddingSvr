@@ -25,7 +25,9 @@ class SuiteManager(models.Manager):
                     'nickname': user.nickname
                 },
                 'beautor': row.beautor,
+                'create_time': row.create_time.toLocaleString()
             })
+        return res
 
 
 class Suite(models.Model):
