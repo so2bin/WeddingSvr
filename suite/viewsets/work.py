@@ -24,14 +24,15 @@ class CreateWorkViewSet(APIView):
         main_img = data.get('main_img')
         head_img = data.get('head_img')
         suite_type = data.get('suite_type')
-        if not all([title, main_img, head_img, suite_type]):
+        if not all([title, main_img, head_img, suite_type is not None]):
             return JsonResponse(Status.WRONG, msg='参数不全')
 
         sut = Suite.objects.create(
             title=title, main_img=main_img, head_img=head_img,
-            creator=request.user.id
+            creator=request.user.id, suite_type=suite_type
         )
         return JsonResponse(Status.OK, data={
+            'id': sut.id,
             'title': title,
             'main_img': main_img,
             'head_img': head_img,

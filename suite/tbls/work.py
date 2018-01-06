@@ -3,17 +3,35 @@
 #
 from django.db import models
 from django.utils import timezone
+from django.db.models import F
 
 from suite.const import SuiteType
+from tools.utils.imgNo import DEF_START_IMG_NO
+from tools import exceptions as wter
+from userinfo.models import Accounts
 
 
 class SuiteManager(models.Manager):
+    def add_num(self, _id, attr='img_num', num=1):
+        row = self.filter(id=_id).first()
+        if not row:
+            return 0
+        if not hasattr(row, attr):
+            wter.ParameterError('Suite没有属性：%s' % attr)
+        old_val = getattr(row, attr, 0)
+        setattr(row, attr, old_val+num)
+        row.log_time = timezone.now()
+        row.save()
+        return num
+
     def get_list(self, user, **kwargs):
-        kwargs.pop('creator')
+        # kwargs.pop('creator')
         rows = self.filter(creator=user.id, **kwargs).order_by('-create_time')
         res = []
         for row in rows:
+            owner = Accounts.objects.get(user_id=user.id)
             res.append({
+                'id': row.id,
                 'title': row.title,
                 'main_img': row.main_img,
                 'head_img': row.head_img,
@@ -22,10 +40,10 @@ class SuiteManager(models.Manager):
                 'favor_num': row.favor_num,
                 'creator': {
                     'id': user.id,
-                    'nickname': user.nickname
+                    'nickname': owner.nickname
                 },
                 'beautor': row.beautor,
-                'create_time': row.create_time.toLocaleString()
+                'create_time': row.create_time.strftime('%Y-%m-%d %H:%M:%S')
             })
         return res
 
@@ -37,7 +55,7 @@ class Suite(models.Model):
     class Meta:
         db_table = "pic_suite"
         index_together = ('creator', 'create_time')
-    objects = SuiteManager
+    objects = SuiteManager()
 
     title = models.CharField(verbose_name='标题', max_length=100)
     main_img = models.CharField(verbose_name='主图url', max_length=255)
@@ -45,6 +63,7 @@ class Suite(models.Model):
     img_num = models.IntegerField(verbose_name='相册图片数', default=0)
     watch_num = models.IntegerField(verbose_name='总观看数', default=0)
     online_num = models.IntegerField(verbose_name='在线人数', default=0)
+    cur_code = models.CharField(verbose_name='当前上传图片最大编号', default=DEF_START_IMG_NO, max_length=16)
     # 社交
     like_num = models.IntegerField(verbose_name='点赞数', default=0)
     favor_num = models.IntegerField(verbose_name='收藏数', default=0)
